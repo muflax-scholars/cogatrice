@@ -7,9 +7,11 @@ require "date"
 require "csv"
 require "highline/import"
 
+Log = "logs/#{Time.now.strftime "%Y-%m-%d_%H:%M:%S"}.log"
+Dir.mkdir "logs" unless Dir.exists? "logs"
+
 class Test
   def initialize
-    @log  = "test.log"
     @desc = "[override me]"
   end
 
@@ -19,7 +21,6 @@ class Test
     ask "[press space to begin]" do |q|
       q.limit = 1
     end
-    log ["new session"]
     
     start = Time.now
     t = 0
@@ -39,8 +40,8 @@ class Test
   end
 
   def log answer
-    CSV.open(@log, "a+") do |f|
-      f << [Time.now.strftime("%s")] + answer
+    CSV.open(Log, "a+") do |f|
+      f << [Time.now.strftime("%s"), self.class] + answer
     end
   end
 end
@@ -48,7 +49,6 @@ end
 class StroopTest < Test
   def initialize *colors
     @colors = colors
-    @log  = "stroop.log"
     @desc = "Stroop test with #{colors.size} colors"
   end
 
@@ -69,7 +69,6 @@ end
 class NBackTest < Test
   def initialize n=2
     @n    = n
-    @log  = "nback.log"
     @desc = "Single n-back test with n = #{n}"
     
     @prompts = []
@@ -95,7 +94,6 @@ end
 class ArithmeticTest < Test
   def initialize *operants
     @operants = operants
-    @log      = "arithmetic.log"
     @desc     = "Arithmetic test with #{operants.size} operants"
   end
 
@@ -115,12 +113,82 @@ class ArithmeticTest < Test
   end
 end
 
+# get current measurements
+puts "Let us pray to the RNG:"
+variables = [
+             {
+              name: "nicotine",
+              # rand: [:post, "1mg", "2mg"],
+              rand: [:pre, :post],
+              wait: true
+             },
+
+             {
+              name: "caffeine",
+              rand: [:pre, :post],
+              wait: true
+             },
+
+             {
+              name: "DXM",
+             },
+            ]
+
+should_wait = false
+variables.each do |var|
+  puts " -> #{var[:name]}"
+
+  
+  opts = [:yes, :no]
+  opts << :randomize if var[:rand]
+  
+  res = ask opts.map(&:to_s).map{|s| "(#{s[0]})#{s[1..-1]}"}.join(" ") do |q|
+    q.limit = 1
+    q.in = opts.map {|o| o.to_s[0]}
+  end
+
+  # get dose 
+  dose = :none
+  case opts.find{|o| o.to_s[0] == res}
+  when :yes
+    dose = ask "enter dose"
+  when :no
+    # skip
+  when :randomize
+    # TODO support for blinding
+    dose = var[:rand].sample
+    case dose
+    when :pre
+      puts "Apply to brain now."
+      should_wait ||= var[:wait]
+    when :post
+      puts "Skip it."
+    else
+      puts "RNG prescribes: #{r}"
+    end
+  end
+
+  # log it
+  CSV.open(Log, "a+") do |f|
+    f << [Time.now.strftime("%s"), "var: #{var[:name]}", dose]
+  end
+
+end
+
+# allow for the drug to take effect
+if should_wait
+  puts "You should wait for 5 minutes. Do stuff, I'll remind you."
+  sleep(5*60)
+  system "gxmessage -timeout 5 'Science time!' &"
+  system "mplayer -really-quiet alarm.mp3"
+end
+
+# run tests
 tests = [
          ArithmeticTest.new(:+, :-, :*),
          NBackTest.new(3),
          StroopTest.new(:red, :green, :yellow, :blue, :magenta),
         ]
-         
 duration = 2*60 # per test
 
 tests.each do |test|
