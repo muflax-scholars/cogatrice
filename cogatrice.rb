@@ -121,8 +121,7 @@ tests = [
          StroopTest.new(:red, :green, :yellow, :blue, :magenta),
         ]
          
-# duration = 2*60 # per test
-duration = 10
+duration = 2*60 # per test
 
 tests.each do |test|
   test.run duration
