@@ -1,1 +1,11 @@
 Battery of quick cognitive tests.
+
+Edit `cogatrice.rb` to suit your needs.
+
+Protocol:
+
+1. For every variable, asks if you want to use it today and if so, if it should randomize it for you.
+2. Performs all cognitive tests.
+3. Saves results under `logs` in same directory.
+
+See also: <http://daily.muflax.com/log/115>
