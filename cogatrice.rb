@@ -3,9 +3,11 @@
 # Copyright muflax <mail@muflax.com>, 2013
 # License: GNU GPL 3 <http://www.gnu.org/copyleft/gpl.html>
 
-require "date"
+require "beeminder"
 require "csv"
+require "date"
 require "highline/import"
+require "yaml"
 
 Log = "logs/#{Time.now.strftime "%Y-%m-%d_%H:%M:%S"}.log"
 Dir.mkdir "logs" unless Dir.exists? "logs"
@@ -210,4 +212,11 @@ tests.each do |test|
   test.run duration
 end
 
-puts "done"
+if agree "Send to Beeminder?"
+  config = YAML.load File.open("#{Dir.home}/.beeminderrc")
+  bee    = Beeminder::User.new config["token"]
+  bee.send "cogtest", 1, "semi-automatic update"
+  puts "Bee buzzed."
+end
+
+puts "Done."
