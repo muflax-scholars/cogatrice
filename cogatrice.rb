@@ -50,11 +50,19 @@ class StroopTest < Test
   def initialize *colors
     @colors = colors
     @desc = "Stroop test with #{colors.size} colors"
+
+    @last_prompt = []
   end
 
   def show_prompt
-    word, color = @colors.sample(2) # ensure incongruent stimuli
-    correct_res = color.to_s[0]
+    prompt = []
+    # don't repeat prompts
+    until prompt != @last_prompt   
+      prompt = @colors.sample(2) # ensure incongruent stimuli
+    end
+    word, color  = prompt
+    @last_prompt = prompt
+    correct_res  = color.to_s[0]
 
     t = Time.now
     res = ask HighLine.color("#{word}", color) do |q|
@@ -96,13 +104,19 @@ class ArithmeticTest < Test
   def initialize *operants
     @operants = operants
     @desc     = "Arithmetic test with #{operants.size} operants"
+
+    @last_prompt = []
   end
 
   def show_prompt
-    a  = rand(0..9)
-    b  = rand(0..9)
-    op = @operants.sample
-    correct_res = a.send(op, b).to_s[-1]
+    prompt = @last_prompt
+    # don't repeat prompts
+    until prompt != @last_prompt   
+      prompt = [rand(0..9), rand(0..9), @operants.sample]
+    end
+    a, b, op     = prompt
+    @last_prompt = prompt
+    correct_res  = a.send(op, b).to_s[-1]
 
     t = Time.now
     res = ask "#{a} #{op} #{b} = ?" do |q|
