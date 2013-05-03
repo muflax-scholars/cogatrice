@@ -75,7 +75,8 @@ class NBackTest < Test
   end
 
   def show_prompt
-    prompt      = (@prompts.size > @n and rand() < 0.3) ? @prompts[-@n] : rand(0..9)
+    # there's a natural 0.1 chance of getting a match, but we raise it up to 0.3
+    prompt      = (@prompts.size > @n and rand() < 0.2) ? @prompts[-@n] : rand(0..9)
     correct_res = (@prompts.size > @n and @prompts[-@n] == prompt) ? "y" : "n"
     
     t = Time.now
