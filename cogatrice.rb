@@ -20,9 +20,10 @@ class Test
   def run duration=60
     system "clear"
     puts "--> #{@desc} for #{duration} seconds..."
-    ask "[press space to begin]" do |q|
+    skip = ask "[press space to begin, n to skip]" do |q|
       q.limit = 1
     end
+    return if skip == "n"
     
     start = Time.now
     t = 0
