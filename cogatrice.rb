@@ -57,7 +57,7 @@ class StroopTest < Test
   end
 
   def show_prompt
-    prompt = []
+    prompt = @last_prompt
     # don't repeat prompts
     until prompt != @last_prompt   
       prompt = @colors.sample(2) # ensure incongruent stimuli
