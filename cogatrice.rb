@@ -115,7 +115,7 @@ class ArithmeticTest < Test
     prompt = @last_prompt
     # don't repeat prompts
     until prompt != @last_prompt   
-      prompt = [rand(0..9), rand(0..9), @operants.sample]
+      prompt = [rand(1..9), rand(1..9), @operants.sample]
     end
     a, b, op     = prompt
     @last_prompt = prompt
