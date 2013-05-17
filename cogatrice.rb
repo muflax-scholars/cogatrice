@@ -132,33 +132,52 @@ class ArithmeticTest < Test
 end
 
 # get current measurements
-puts "Let us pray to the RNG:"
 variables = [
-             {
-              name: "nicotine",
-              # rand: [:post, "1mg", "2mg"],
-              rand: [:pre, :post],
-              wait: true
-             },
-
-             {
-              name: "caffeine",
-              rand: [:pre, :post],
-              wait: true
-             },
-
-             {
-              name: "DXM",
-             },
+             "energy level",
+             "comfortableness",
+             "everything-makes-sense-ness",
+             "bodyload",
             ]
+variables.each do |var|
+  res = ask "How's your #{var} today, on a scale of 1-5?", Integer do |q|
+    q.limit = 1
+    q.in    = (1..5)
+  end
+  
+  # log it
+  CSV.open(Log, "a+") do |f|
+    f << [Time.now.strftime("%s"), "variable: #{var}", res]
+  end
+end
+
+# apply interventions
+puts "Let us pray to the RNG:"
+interventions = [
+                 {
+                  name: "nicotine",
+                  # rand: [:post, "1mg", "2mg"],
+                  rand: [:pre, :post],
+                  wait: true
+                 },
+                 
+                 {
+                  name: "caffeine",
+                  rand: [:pre, :post],
+                  wait: true
+                 },
+                 
+                 {
+                  name: "DXM",
+                 },
+                ]
 
 should_wait = false
-variables.each do |var|
-  puts " -> #{var[:name]}"
+interventions.each do |intervention|
+  puts " -> #{intervention[:name]}"
 
   
   opts = [:yes, :no]
-  opts << :randomize if var[:rand]
+  opts << :randomize if intervention[:rand]
   
   res = ask opts.map(&:to_s).map{|s| "(#{s[0]})#{s[1..-1]}"}.join(" ") do |q|
     q.limit = 1
@@ -174,11 +193,11 @@ variables.each do |var|
     # skip
   when :randomize
     # TODO support for blinding
-    dose = var[:rand].sample
+    dose = intervention[:rand].sample
     case dose
     when :pre
       puts "Apply to brain now."
-      should_wait ||= var[:wait]
+      should_wait ||= intervention[:wait]
     when :post
       puts "Skip it."
     else
@@ -188,7 +207,7 @@ variables.each do |var|
 
   # log it
   CSV.open(Log, "a+") do |f|
-    f << [Time.now.strftime("%s"), "var: #{var[:name]}", dose]
+    f << [Time.now.strftime("%s"), "intervention: #{intervention[:name]}", dose]
   end
 
 end
