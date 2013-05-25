@@ -4,8 +4,16 @@ Edit `cogatrice.rb` to suit your needs.
 
 Protocol:
 
-1. For every variable, asks if you want to use it today and if so, if it should randomize it for you.
+1. Tracks basic variables like "energy level".
+1. For every intervention, asks if you want to use it today and if so, if it should randomize it for you.
 2. Performs all cognitive tests.
 3. Saves results under `logs` in same directory.
+4. `analyze.rb` does some basic aggregation and gives you results in `analysis/*.csv`.
+
+Supported tests:
+
+1. Simple arithmetic (1+8 = ?), random accuracy ~10%
+1. single n-back (n=3, ~30% are matches), random accuracy ~58% (if mixed strategy), ~50% (if guessing), ~70% (if always no)
+1. Stroop test (5 colors), random accuracy ~20%
 
 See also: <http://daily.muflax.com/log/115>
