@@ -16,9 +16,9 @@ scores        = Hash.new {|h,k| h[k] = Hash.new{|h2,k2| h2[k2] = []}}
 class String
   def to_bool
     case self
-    when "true"
+    when "true", "y", "yes"
       true
-    when "false"
+    when "false", "n", "no"
       false
     else
       nil
@@ -53,11 +53,27 @@ logs.each do |log|
       time = data[1].to_f
       scores[day]["nback_acc"]  << acc
       scores[day]["nback_time"] << time
+
+      # also split scores into "there was a match" and "there wasn't"
+      pos = data[6].to_bool
+      if pos
+        scores[day]["nback_pos_acc"] << acc
+      else
+        scores[day]["nback_neg_acc"] << acc
+      end
     when "StroopTest"
       acc  = data[0].to_bool
       time = data[1].to_f
       scores[day]["stroop_acc"]  << acc
       scores[day]["stroop_time"] << time
+
+      # check for predictable interference, i.e. if wrong answer, was it the *name* instead?
+      if acc == false
+        word = data[3][0]
+        res  = data[5]
+        interfered = word == res
+        scores[day]["stroop_interference_acc"] << interfered
+      end
     end
   end
 end
@@ -75,6 +91,7 @@ end
 scores_agg = Hash.new {|h,k| h[k] = Hash.new{|h2,k2| h2[k2] = 0.0}}
 scores.each do |day, vals|
   vals.each do |type, list|
+    # just average values
     agg = case type
           when /_acc$/
             # ignore non-bool values
