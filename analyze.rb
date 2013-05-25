@@ -31,10 +31,12 @@ end
 logs = Dir["logs/*.log"].sort
 logs.each do |log|
   puts "reading #{log}..."
+
+  day = DateTime.parse log[/\d+-\d+-\d+_\d+:\d+:\d+/]
   
   CSV.open(log).each do |row|
     timestamp, type, *data = row
-    day = DateTime.strptime(timestamp, "%s").to_date
+    # day = DateTime.strptime(timestamp, "%s").to_date
     
     case type
     when /^variable:/
